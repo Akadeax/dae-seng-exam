@@ -9,26 +9,26 @@
 #include "Game.h"
 
 //-----------------------------------------------------------------
-// Game Member Functions																				
+// Game Member Functions
 //-----------------------------------------------------------------
 
-Game::Game() 																	
+Game::Game()
 {
 	// nothing to create
 }
 
-Game::~Game()																						
+Game::~Game()
 {
 	// nothing to destroy
 }
 
-void Game::Initialize()			
+void Game::Initialize()
 {
 	// Code that needs to execute (once) at the start of the game, before the game window is created
 
 	AbstractGame::Initialize();
-	GAME_ENGINE->SetTitle(_T("Game Engine version 8_01"));	
-	
+	GAME_ENGINE->SetTitle(_T("Game Engine version 8_01"));
+
 	GAME_ENGINE->SetWidth(1024);
 	GAME_ENGINE->SetHeight(768);
     GAME_ENGINE->SetFrameRate(50);
@@ -53,16 +53,16 @@ void Game::End()
 
 void Game::Paint(RECT rect) const
 {
-	// Insert paint code 
+	// Insert paint code
 }
 
 void Game::Tick()
 {
-	// Insert non-paint code that needs to execute each tick 
+	// Insert non-paint code that needs to execute each tick
 }
 
 void Game::MouseButtonAction(bool isLeft, bool isDown, int x, int y, WPARAM wParam)
-{	
+{
 	// Insert code for a mouse button action
 
 	/* Example:
@@ -80,12 +80,12 @@ void Game::MouseButtonAction(bool isLeft, bool isDown, int x, int y, WPARAM wPar
 }
 
 void Game::MouseWheelAction(int x, int y, int distance, WPARAM wParam)
-{	
+{
 	// Insert code for a mouse wheel action
 }
 
 void Game::MouseMove(int x, int y, WPARAM wParam)
-{	
+{
 	// Insert code that needs to execute when the mouse pointer moves across the game window
 
 	/* Example:
@@ -100,9 +100,9 @@ void Game::MouseMove(int x, int y, WPARAM wParam)
 }
 
 void Game::CheckKeyboard()
-{	
+{
 	// Here you can check if a key is pressed down
-	// Is executed once per frame 
+	// Is executed once per frame
 
 	/* Example:
 	if (GAME_ENGINE->IsKeyDown(_T('K'))) xIcon -= xSpeed;
@@ -113,7 +113,7 @@ void Game::CheckKeyboard()
 }
 
 void Game::KeyPressed(TCHAR key)
-{	
+{
 	// DO NOT FORGET to use SetKeyList() !!
 
 	// Insert code that needs to execute when a key is pressed
@@ -145,7 +145,3 @@ void Game::CallAction(Caller* callerPtr)
 {
 	// Insert the code that needs to execute when a Caller (= Button, TextBox, Timer, Audio) executes an action
 }
-
-
-
-

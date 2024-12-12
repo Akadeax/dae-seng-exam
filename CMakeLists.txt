@@ -6,4 +6,5 @@ set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
 set(WIN32 True)
 
+add_subdirectory(third_party)
 add_subdirectory(src)

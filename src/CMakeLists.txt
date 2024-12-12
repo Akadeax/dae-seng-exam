@@ -1,5 +1,3 @@
-
-
 # Define sources and add executable
 set(SOURCES
 	"GameWinMain.h" "GameWinMain.cpp"
@@ -11,6 +9,13 @@ set(SOURCES
 add_compile_definitions(_UNICODE)
 
 add_executable(${PROJECT_NAME} WIN32 ${SOURCES})
+
+target_link_libraries(${PROJECT_NAME} PRIVATE
+  lua::lua
+  sol2::sol2
+)
+
+set_property(TARGET ${PROJECT_NAME} PROPERTY CXX_STANDARD 17)
 
 # Set output directories
 set_target_properties(${PROJECT_NAME}

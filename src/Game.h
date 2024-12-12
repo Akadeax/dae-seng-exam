@@ -1,6 +1,6 @@
 //-----------------------------------------------------------------
 // Main Game  File
-// C++ Header - Game.h - version v8_01			
+// C++ Header - Game.h - version v8_01
 //-----------------------------------------------------------------
 
 #pragma once
@@ -9,16 +9,17 @@
 // Include Files
 //-----------------------------------------------------------------
 
-#include "Resource.h"	
+#include "Resource.h"
 #include "GameEngine.h"
 #include "AbstractGame.h"
+#include "sol/sol.hpp"
 
 //-----------------------------------------------------------------
-// Game Class																
+// Game Class
 //-----------------------------------------------------------------
 class Game : public AbstractGame, public Callable
 {
-public:				
+public:
 	//---------------------------
 	// Constructor(s) and Destructor
 	//---------------------------
@@ -27,7 +28,7 @@ public:
 	virtual ~Game() override;
 
 	//---------------------------
-	// Disabling copy/move constructors and assignment operators   
+	// Disabling copy/move constructors and assignment operators
 	//---------------------------
 	Game(const Game& other)					= delete;
 	Game(Game&& other) noexcept				= delete;
@@ -47,14 +48,14 @@ public:
 	void MouseMove			(int x, int y, WPARAM wParam)								override;
 	void CheckKeyboard		()															override;
 	void KeyPressed			(TCHAR key)													override;
-	
+
 	void CallAction			(Caller* callerPtr)											override;
 
 private:
+	void SetupBindings();
+
 	// -------------------------
 	// Datamembers
 	// -------------------------
-
-
-
+	sol::state state;
 };

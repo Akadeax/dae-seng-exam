@@ -7,6 +7,7 @@
 // Include Files
 //-----------------------------------------------------------------
 #include "Game.h"
+#include "SetupContext.h"
 
 //-----------------------------------------------------------------
 // Game Member Functions
@@ -24,14 +25,30 @@ Game::~Game()
 
 void Game::Initialize()
 {
-	// Code that needs to execute (once) at the start of the game, before the game window is created
-
+	SetupBindings();
 	AbstractGame::Initialize();
-	GAME_ENGINE->SetTitle(_T("Game Engine version 8_01"));
 
-	GAME_ENGINE->SetWidth(1024);
-	GAME_ENGINE->SetHeight(768);
-    GAME_ENGINE->SetFrameRate(50);
+	std::string scriptName{ "lua/script.lua" };
+
+	state.safe_script_file(scriptName);
+
+	SetupContext setupContext{ TEXT("Default Name"), 800, 600 };
+	auto luaSetupFn{ state["setup"] };
+	if(luaSetupFn.valid())
+	{
+		auto setupResult = luaSetupFn(setupContext);
+		if(!setupResult.valid())
+		{
+			const sol::error err = setupResult;
+			throw std::exception(err.what());
+		}
+	}
+
+	GAME_ENGINE->SetTitle(setupContext.getWindowTitle());
+
+	GAME_ENGINE->SetWidth(setupContext.getWindowWidth());
+	GAME_ENGINE->SetHeight(setupContext.getWindowHeight());
+	GAME_ENGINE->SetFrameRate(50);
 
 	// Set the keys that the game needs to listen to
 	//tstringstream buffer;
@@ -144,4 +161,16 @@ void Game::KeyPressed(TCHAR key)
 void Game::CallAction(Caller* callerPtr)
 {
 	// Insert the code that needs to execute when a Caller (= Button, TextBox, Timer, Audio) executes an action
+}
+
+void Game::SetupBindings()
+{
+	state.new_usertype<SetupContext>(
+        "SetupContext",
+        "set_window_size", &SetupContext::setWindowSize,
+        "set_window_title", &SetupContext::setWindowTitle,
+        "get_window_title", &SetupContext::getWindowTitle,
+        "get_window_width", &SetupContext::getWindowWidth,
+        "get_window_height", &SetupContext::getWindowHeight
+    );
 }

@@ -6,7 +6,9 @@ set(SOURCES
 	"Game.h" "Game.cpp"
 )
 
+# the engine uses UNICODE, but _UNICODE is also used :(
 add_compile_definitions(_UNICODE)
+add_compile_definitions(UNICODE)
 
 add_executable(${PROJECT_NAME} WIN32 ${SOURCES})
 
@@ -23,4 +25,12 @@ set_target_properties(${PROJECT_NAME}
     ARCHIVE_OUTPUT_DIRECTORY "${CMAKE_BINARY_DIR}/lib"
     LIBRARY_OUTPUT_DIRECTORY "${CMAKE_BINARY_DIR}/lib"
     RUNTIME_OUTPUT_DIRECTORY "${CMAKE_BINARY_DIR}/bin"
+)
+
+# Copy lua folder to build output
+add_custom_command(
+  TARGET ${PROJECT_NAME} POST_BUILD
+  COMMAND ${CMAKE_COMMAND} -E copy_directory
+          ${CMAKE_SOURCE_DIR}/lua
+          $<TARGET_FILE_DIR:${PROJECT_NAME}>/lua
 )

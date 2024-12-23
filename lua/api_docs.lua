@@ -26,3 +26,15 @@ function SetupContext:get_window_width() end
 --- Gets the window height.
 --- @return number # The current window height.
 function SetupContext:get_window_height() end
+
+
+--- @class Vector2l
+--- @field x number The x-component
+--- @field y number The y-component
+Vector2l = {}
+
+--- @param x number The x-component
+--- @param y number The y-component
+--- @return Vector2l vec Constructed vector
+--- @overload fun(x: integer, y: integer): Vector2l
+function Vector2l.new(x, y) end

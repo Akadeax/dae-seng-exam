@@ -58,4 +58,6 @@ private:
 	// Datamembers
 	// -------------------------
 	sol::state state;
+
+	std::unique_ptr<Button> m_pButton{};
 };

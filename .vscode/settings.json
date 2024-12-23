@@ -1,0 +1,9 @@
+{
+	"Lua.diagnostics.disable": [
+		"lowercase-global"
+	],
+	"files.associations": {
+		"memory": "cpp",
+		"cstdint": "cpp"
+	}
+}

@@ -8,6 +8,8 @@
 //-----------------------------------------------------------------
 #include "Game.h"
 #include "SetupContext.h"
+#include "Painter.h"
+#include "Vectors.h"
 
 //-----------------------------------------------------------------
 // Game Member Functions
@@ -165,6 +167,28 @@ void Game::CallAction(Caller* callerPtr)
 
 void Game::SetupBindings()
 {
+	state.open_libraries(sol::lib::base);
+
+	state.new_usertype<Vector2l>(
+		"Vector2l",
+		sol::constructors<Vector2l(Vector2l_t, Vector2l_t)>{},
+		"x", &Vector2<Vector2l_t>::x,
+		"y", &Vector2<Vector2l_t>::y,
+		"print", &Vector2<Vector2l_t>::Print
+	);
+	state.new_usertype<Vector2f>(
+		"Vector2f",
+		sol::constructors<Vector2f(), Vector2l(Vector2f_t, Vector2f_t)>{},
+		"x", &Vector2<Vector2f_t>::x,
+		"y", &Vector2<Vector2f_t>::y,
+		"print", &Vector2<Vector2f_t>::Print
+	);
+
+	// state.new_usertype<Painter>(
+	// 	"Painter",
+	// 	"draw_rectangle", &Painter::DrawRectangle
+	// );
+
 	state.new_usertype<SetupContext>(
         "SetupContext",
         "set_window_size", &SetupContext::setWindowSize,

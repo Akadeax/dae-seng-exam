@@ -93,6 +93,8 @@ void GameEngine::SetTitle(const tstring& title)
 
 bool GameEngine::Run(HINSTANCE hInstance, int cmdShow)
 {
+	AllocateConsole();
+
 	// set the instance member variable of the game engine
 	SetInstance(hInstance);
 
@@ -912,6 +914,24 @@ POINT GameEngine::AngleToPoint(int left, int top, int right, int bottom, int ang
 	}
 
 	return pt;
+}
+
+void GameEngine::AllocateConsole()
+{
+	if (AllocConsole())                          // Allocate a new console for the application
+    {
+        FILE *fp;                                // Redirect STDOUT to the console
+        freopen_s(&fp, "CONOUT$", "w", stdout);
+        setvbuf(stdout, NULL, _IONBF, 0);        // Disable buffering for stdout
+
+        freopen_s(&fp, "CONOUT$", "w", stderr);  // Redirect STDERR to the console
+        setvbuf(stderr, NULL, _IONBF, 0);        // Disable buffering for stderr
+
+        freopen_s(&fp, "CONIN$", "r", stdin);    // Redirect STDIN to the console
+        setvbuf(stdin, NULL, _IONBF, 0);         // Disable buffering for stdin
+
+        std::ios::sync_with_stdio(true);         // Sync C++ streams with the console
+    }
 }
 
 int GameEngine::DrawString(const tstring& text, int left, int top, int right, int bottom) const

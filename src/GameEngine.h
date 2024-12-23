@@ -160,6 +160,9 @@ private:
 	void		FormPolygon			(const POINT ptsArr[], int count, bool close)			const;
 	POINT		AngleToPoint		(int left, int top, int right, int bottom, int angle)	const;
 
+	// Credit to Ádám Knapecz; makes standard cout & lua prints function within console window
+	void 		AllocateConsole		();
+
 	// Member Variables
 	HINSTANCE           m_Instance			{};
 	HWND                m_Window			{};

@@ -59,5 +59,9 @@ private:
 	// -------------------------
 	sol::state state;
 
-	std::unique_ptr<Button> m_pButton{};
+	// lua functions
+	sol::function luaUpdateFunction;
+	sol::function luaDrawFunction;
+	sol::function luaCheckKeyboardFunction;
+	sol::function luaKeyPressedFunction;
 };

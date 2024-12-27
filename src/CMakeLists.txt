@@ -4,6 +4,10 @@ set(SOURCES
 	"GameEngine.h" "GameEngine.cpp"
 	"AbstractGame.h" "AbstractGame.cpp"
 	"Game.h" "Game.cpp"
+	"Color.h" "Color.cpp"
+	"Painter.h" "Painter.cpp"
+	"SetupContext.h"
+	"Vectors.h"
 )
 
 # the engine uses UNICODE, but _UNICODE is also used :(

@@ -2,7 +2,7 @@
 // AbstractGame Object
 // C++ Header - AbstractGame.h - version v8_01
 //
-// AbstractGame is the abstract class which declares the functions that a 
+// AbstractGame is the abstract class which declares the functions that a
 // game class needs to implement to work with the game engine
 //-----------------------------------------------------------------
 #pragma once
@@ -14,17 +14,20 @@
 #include <windows.h>
 #include <tchar.h>
 
+
+struct LuaFunctionInvalid{};
+
 //-----------------------------------------------------------------
 // AbstractGame Class
 //-----------------------------------------------------------------
 class AbstractGame
 {
-public :
+public:
 	// Constructor(s) and destructor
 	AbstractGame()			= default;
 	virtual ~AbstractGame() = default;
 
-	// Disabling copy/move constructors and assignment operators   
+	// Disabling copy/move constructors and assignment operators
 	AbstractGame(const AbstractGame& other)					= delete;
 	AbstractGame(AbstractGame&& other) noexcept				= delete;
 	AbstractGame& operator=(const AbstractGame& other)		= delete;

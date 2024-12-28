@@ -8,9 +8,11 @@
 //-----------------------------------------------------------------
 #include "Game.h"
 #include "SetupContext.h"
-#include "Painter.h"
 #include "Vectors.h"
 #include "Color.h"
+
+#include "PainterBinding.h"
+#include "EngineBinding.h"
 
 //-----------------------------------------------------------------
 // Game Member Functions
@@ -140,15 +142,7 @@ void Game::MouseMove(int x, int y, WPARAM wParam)
 
 void Game::CheckKeyboard()
 {
-	// Here you can check if a key is pressed down
-	// Is executed once per frame
 
-	/* Example:
-	if (GAME_ENGINE->IsKeyDown(_T('K'))) xIcon -= xSpeed;
-	if (GAME_ENGINE->IsKeyDown(_T('L'))) yIcon += xSpeed;
-	if (GAME_ENGINE->IsKeyDown(_T('M'))) xIcon += xSpeed;
-	if (GAME_ENGINE->IsKeyDown(_T('O'))) yIcon -= ySpeed;
-	*/
 
 	luaCheckKeyboardFunction();
 }
@@ -156,31 +150,6 @@ void Game::CheckKeyboard()
 void Game::KeyPressed(TCHAR key)
 {
 	luaKeyPressedFunction(tstring{ key });
-	// DO NOT FORGET to use SetKeyList() !!
-
-	// Insert code that needs to execute when a key is pressed
-	// The function is executed when the key is *released*
-	// You need to specify the list of keys with the SetKeyList() function
-
-	/* Example:
-	switch (key)
-	{
-	case _T('K'): case VK_LEFT:
-		GAME_ENGINE->MessageBox("Moving left.");
-		break;
-	case _T('L'): case VK_DOWN:
-		GAME_ENGINE->MessageBox("Moving down.");
-		break;
-	case _T('M'): case VK_RIGHT:
-		GAME_ENGINE->MessageBox("Moving right.");
-		break;
-	case _T('O'): case VK_UP:
-		GAME_ENGINE->MessageBox("Moving up.");
-		break;
-	case VK_ESCAPE:
-		GAME_ENGINE->MessageBox("Escape menu.");
-	}
-	*/
 }
 
 void Game::CallAction(Caller* callerPtr)
@@ -192,11 +161,45 @@ void Game::SetupBindings()
 {
 	state.open_libraries(sol::lib::base);
 
-	state.new_usertype<Painter>(
+	state.new_usertype<PainterBinding>(
 		"Painter",
-		"fill_window_rect", &Painter::FillWindowRect,
-		"set_color", &Painter::SetColor,
-		"draw_line", &Painter::DrawLine
+		"fill_window_rect", &PainterBinding::FillWindowRect,
+		"set_color", &PainterBinding::SetColor,
+		"set_font", &PainterBinding::SetFont,
+
+		"draw_line", &PainterBinding::DrawLine,
+		"draw_rect", &PainterBinding::DrawRect,
+		"fill_rect", &PainterBinding::FillRect,
+		"draw_round_rect", &PainterBinding::DrawRoundRect,
+		"fill_round_rect", &PainterBinding::FillRoundRect,
+		"draw_oval", &PainterBinding::DrawOval,
+		"fill_oval", &PainterBinding::FillOval,
+		"draw_arc", &PainterBinding::DrawArc,
+		"fill_arc", &PainterBinding::FillArc,
+		"draw_string", &PainterBinding::DrawString,
+		"draw_string_sized", &PainterBinding::DrawStringSized,
+		"draw_bitmap", &PainterBinding::DrawBitmap,
+		"draw_bitmap_sourced", &PainterBinding::DrawBitmapSourced,
+		"draw_polygon", &PainterBinding::DrawPolygon,
+		"fill_polygon", &PainterBinding::FillPolygon
+	);
+
+	state.new_usertype<Bitmap>(
+		"BitmapRef",
+		"new", &PainterBinding::CreateBitmap
+	);
+
+	state.new_usertype<Font>(
+		"FontRef",
+		"new", &PainterBinding::CreateFontRef
+	);
+
+	state.new_usertype<EngineBinding>(
+		"Engine",
+		"is_key_pressed", &EngineBinding::IsKeyPressed,
+		"quit", &EngineBinding::Quit,
+		"go_fullscreen", &EngineBinding::GoFullscreen,
+		"go_windowed", &EngineBinding::GoWindowed
 	);
 
 	// This is POD
@@ -275,46 +278,5 @@ void Game::SetupBindings()
 		"r", &Color::r,
 		"g", &Color::g,
 		"b", &Color::b
-
-		// "BLACK", Color(0, 0, 0),
-        // "WHITE", Color(255, 255, 255),
-        // "RED", Color(255, 0, 0),
-        // "GREEN", Color(0, 255, 0),
-        // "BLUE", Color(0, 0, 255),
-        // "YELLOW", Color(255, 255, 0),
-        // "CYAN", Color(0, 255, 255),
-        // "MAGENTA", Color(255, 0, 255),
-        // "GRAY", Color(128, 128, 128),
-        // "LIGHT_GRAY", Color(211, 211, 211),
-        // "DARK_GRAY", Color(64, 64, 64),
-        // "ORANGE", Color(255, 165, 0),
-        // "PINK", Color(255, 192, 203),
-        // "PURPLE", Color(128, 0, 128),
-        // "BROWN", Color(139, 69, 19),
-        // "LIME", Color(50, 205, 50),
-        // "OLIVE", Color(128, 128, 0),
-        // "MAROON", Color(128, 0, 0),
-        // "NAVY", Color(0, 0, 128),
-        // "TEAL", Color(0, 128, 128),
-        // "GOLD", Color(255, 215, 0),
-        // "SILVER", Color(192, 192, 192),
-        // "BEIGE", Color(245, 245, 220),
-        // "TURQUOISE", Color(64, 224, 208),
-        // "INDIGO", Color(75, 0, 130),
-        // "VIOLET", Color(238, 130, 238),
-        // "SALMON", Color(250, 128, 114),
-        // "CORAL", Color(255, 127, 80),
-        // "CHOCOLATE", Color(210, 105, 30),
-        // "KHAKI", Color(240, 230, 140),
-        // "PLUM", Color(221, 160, 221),
-        // "TAN", Color(210, 180, 140),
-        // "AQUA", Color(0, 255, 255),
-        // "FUCHSIA", Color(255, 0, 255),
-        // "SEA_GREEN", Color(46, 139, 87),
-        // "LAVENDER", Color(230, 230, 250),
-        // "CRIMSON", Color(220, 20, 60),
-        // "MINT", Color(189, 252, 201),
-        // "SKY_BLUE", Color(135, 206, 235),
-        // "PEACH", Color(255, 218, 185)
 	);
 }

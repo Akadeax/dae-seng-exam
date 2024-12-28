@@ -5,7 +5,8 @@ set(SOURCES
 	"AbstractGame.h" "AbstractGame.cpp"
 	"Game.h" "Game.cpp"
 	"Color.h" "Color.cpp"
-	"Painter.h" "Painter.cpp"
+	"PainterBinding.h" "PainterBinding.cpp"
+	"EngineBinding.h" "EngineBinding.cpp"
 	"SetupContext.h"
 	"Vectors.h"
 )
@@ -37,4 +38,12 @@ add_custom_command(
   COMMAND ${CMAKE_COMMAND} -E copy_directory
           ${CMAKE_SOURCE_DIR}/lua
           $<TARGET_FILE_DIR:${PROJECT_NAME}>/lua
+)
+
+# Copy resources folder to build output
+add_custom_command(
+  TARGET ${PROJECT_NAME} POST_BUILD
+  COMMAND ${CMAKE_COMMAND} -E copy_directory
+          ${CMAKE_SOURCE_DIR}/resources
+          $<TARGET_FILE_DIR:${PROJECT_NAME}>/resources
 )

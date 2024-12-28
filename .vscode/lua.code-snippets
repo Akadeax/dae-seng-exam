@@ -1,0 +1,12 @@
+{
+	"Create a lua doc func": {
+		"prefix": "docfunc",
+		"body": [
+			"--- ${1:FunctionDescription}",
+			"--- @param ",
+			"--- @return ",
+			"function ${2:Class}.${3:FunctionName}(${4:Params}) end"
+		],
+		"description": "Create a lua doc func"
+	}
+}

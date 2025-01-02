@@ -35,7 +35,6 @@ function draw()
     Painter.draw_bitmap_scaled(bitmaps.player, player_position, Vector2l.new(pixel_scale, pixel_scale));
 end
 
-
 --- Called every frame. Check whether continuous keys are pressed here.
 function check_keyboard()
     if Engine.is_key_pressed("A") and player_position.x > 0 then

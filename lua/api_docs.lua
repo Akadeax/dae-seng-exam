@@ -142,9 +142,8 @@ do -- Drawing-related bindings
 	function BitmapRef.new(path, createAlphaChannel) end
 
 	--- Gets the width and height of a bitmap.
-	--- @param bitmap BitmapRef
 	--- @return Vector2l size
-	function BitmapRef.get_size(bitmap) end
+	function BitmapRef:get_size() end
 
 	--- @class FontRef
 	FontRef = {}

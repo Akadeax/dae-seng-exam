@@ -99,7 +99,8 @@ void Game::Paint(RECT rect) const
 
 void Game::Tick()
 {
-	luaUpdateFunction();
+	float deltaTime = static_cast<float>(GAME_ENGINE->GetFrameDelay()) / 1000;
+	luaUpdateFunction(deltaTime);
 }
 
 void Game::MouseButtonAction(bool isLeft, bool isDown, int x, int y, WPARAM wParam)
@@ -159,7 +160,9 @@ void Game::CallAction(Caller* callerPtr)
 
 void Game::SetupBindings()
 {
-	state.open_libraries(sol::lib::base);
+	state.open_libraries(sol::lib::base, sol::lib::math, sol::lib::string, sol::lib::debug);
+
+	state["delta_time"] = static_cast<float>(GAME_ENGINE->GetFrameDelay()) / 1000;
 
 	state.new_usertype<PainterBinding>(
 		"Painter",
@@ -179,14 +182,17 @@ void Game::SetupBindings()
 		"draw_string", &PainterBinding::DrawString,
 		"draw_string_sized", &PainterBinding::DrawStringSized,
 		"draw_bitmap", &PainterBinding::DrawBitmap,
+		"draw_bitmap_scaled", &PainterBinding::DrawBitmapScaled,
 		"draw_bitmap_sourced", &PainterBinding::DrawBitmapSourced,
+		"draw_bitmap_sourced_scaled", &PainterBinding::DrawBitmapSourcedScaled,
 		"draw_polygon", &PainterBinding::DrawPolygon,
 		"fill_polygon", &PainterBinding::FillPolygon
 	);
 
 	state.new_usertype<Bitmap>(
 		"BitmapRef",
-		"new", &PainterBinding::CreateBitmap
+		"new", &PainterBinding::CreateBitmap,
+		"get_size", &PainterBinding::GetBitmapSize
 	);
 
 	state.new_usertype<Font>(
@@ -199,7 +205,8 @@ void Game::SetupBindings()
 		"is_key_pressed", &EngineBinding::IsKeyPressed,
 		"quit", &EngineBinding::Quit,
 		"go_fullscreen", &EngineBinding::GoFullscreen,
-		"go_windowed", &EngineBinding::GoWindowed
+		"go_windowed", &EngineBinding::GoWindowed,
+		"make_timer", &EngineBinding::MakeTimer
 	);
 
 	// This is POD

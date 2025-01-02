@@ -7,6 +7,7 @@ set(SOURCES
 	"Color.h" "Color.cpp"
 	"PainterBinding.h" "PainterBinding.cpp"
 	"EngineBinding.h" "EngineBinding.cpp"
+	"Timer.h" "Timer.tpp"
 	"SetupContext.h"
 	"Vectors.h"
 )
@@ -22,7 +23,7 @@ target_link_libraries(${PROJECT_NAME} PRIVATE
   sol2::sol2
 )
 
-set_property(TARGET ${PROJECT_NAME} PROPERTY CXX_STANDARD 17)
+set_property(TARGET ${PROJECT_NAME} PROPERTY CXX_STANDARD 20)
 
 # Set output directories
 set_target_properties(${PROJECT_NAME}

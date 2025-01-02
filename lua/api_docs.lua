@@ -1,5 +1,11 @@
 --- @meta
 
+do -- globals
+	--- Time that has elapsed since the last frame.
+	--- @type number
+	delta_time = 0.0
+end
+
 do -- Drawing-related bindings
 
 	--- @class Color
@@ -104,6 +110,12 @@ do -- Drawing-related bindings
 	--- @param topLeft Vector2l The top left coordinates to draw from.
 	function Painter.draw_bitmap(bitmap, topLeft) end
 
+	--- Draw a Bitmap with a specified scale.
+	--- @param bitmap BitmapRef
+	--- @param topLeft Vector2l The top left coordinates to draw from.
+	--- @param scale Vector2l The amount to scale the bitmap.
+	function Painter.draw_bitmap_scaled(bitmap, topLeft, scale) end
+
 	--- Draw a Bitmap with a specified source rect.
 	--- @param bitmap BitmapRef
 	--- @param topLeft Vector2l The top left coordinates to draw from.
@@ -111,6 +123,15 @@ do -- Drawing-related bindings
 	--- @param sourceBottomRight Vector2l The bottom right coordinates in the source image to draw.
 	function Painter.draw_bitmap_sourced(bitmap, topLeft, sourceTopLeft, sourceBottomRight) end
 
+	--- Draw a Bitmap with a specified source rect and specified scale.
+	--- @param bitmap BitmapRef
+	--- @param topLeft Vector2l The top left coordinates to draw from.
+	--- @param sourceTopLeft Vector2l The top left coordinates in the source image to draw.
+	--- @param sourceBottomRight Vector2l The bottom right coordinates in the source image to draw.
+	--- @param scale Vector2l The amount to scale the bitmap.
+	function Painter.draw_bitmap_sourced_scaled(bitmap, topLeft, sourceTopLeft, sourceBottomRight, scale) end
+
+	--- A reference to a bitmap object. Does not contain actual data, just holds a handle.
 	--- @class BitmapRef
 	BitmapRef = {}
 
@@ -120,15 +141,19 @@ do -- Drawing-related bindings
 	--- @return BitmapRef bitmap The constructed bitmap.
 	function BitmapRef.new(path, createAlphaChannel) end
 
+	--- Gets the width and height of a bitmap.
+	--- @param bitmap BitmapRef
+	--- @return Vector2l size
+	function BitmapRef.get_size(bitmap) end
 
 	--- @class FontRef
 	FontRef = {}
 
 	--- Construct a bitmap located at a file path.
 	--- @param fontName string Name of the font.
-	--- @param bold boolean
-	--- @param italic boolean
-	--- @param underline boolean
+	--- @param bold boolean Whether to draw bold.
+	--- @param italic boolean Whether to draw italic.
+	--- @param underline boolean Whether to draw underlined.
 	--- @param size integer Point size.
 	--- @return FontRef font The constructed font reference.
 	function FontRef.new(fontName, bold, italic, underline, size) end
@@ -219,8 +244,8 @@ end
 
 do -- Engine bindings
 	--- @class Vector2l
-	--- @field x number The x-component.
-	--- @field y number The y-component.
+	--- @field x integer The x-component.
+	--- @field y integer The y-component.
 	Vector2l = {}
 
 	--- @param x integer The x-component.
@@ -250,5 +275,11 @@ do -- Engine bindings
 
 	--- Go into windowed mode.
 	function Engine.go_windowed() end
+
+	--- Make a timer that calls a callback after the given seconds.
+	--- @param seconds number
+	---@param func function
+	---@param repeats boolean
+	function Engine.make_timer(seconds, func, repeats) end
 
 end

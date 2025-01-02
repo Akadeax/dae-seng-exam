@@ -52,6 +52,9 @@ GameEngine::~GameEngine()
 	// shut down GDI+
 	Gdiplus::GdiplusShutdown(m_GDIPlusToken);
 
+	// Needs to be deleted before the game; timers may reference things like lua state which is held by the game
+	m_Timers.clear();
+
 	// delete the game object
 	delete m_GamePtr;
 }
@@ -145,6 +148,7 @@ bool GameEngine::Run(HINSTANCE hInstance, int cmdShow)
 				PaintDoubleBuffered(hDC);
 				ReleaseDC(m_Window, hDC);
 
+				TickTimers();
 				// Call the game tick
 				m_GamePtr->Tick();
 
@@ -453,6 +457,20 @@ void GameEngine::TabPrevious(HWND ChildWindow) const
 
 	if (position == 0) SetFocus(childWindows[childWindows.size() - 1]);
 	else SetFocus(childWindows[position - 1]);
+}
+
+void GameEngine::RegisterTimer(std::unique_ptr<ITimer> pTimer)
+{
+	// Find an empty slot in timers list; if there is none, push back
+	for (size_t i{}; i < m_Timers.size(); ++i)
+	{
+		if (m_Timers[i] != nullptr) continue;
+
+		m_Timers[i] = std::move(pTimer);
+		return;
+	}
+
+	GAME_ENGINE->m_Timers.push_back(std::move(pTimer));
 }
 
 void GameEngine::SetInstance(HINSTANCE hInstance)
@@ -917,6 +935,7 @@ POINT GameEngine::AngleToPoint(int left, int top, int right, int bottom, int ang
 	return pt;
 }
 
+// Credit to Ádám Knapecz; makes standard cout & lua prints function within console window
 void GameEngine::AllocateConsole()
 {
 	if (AllocConsole())                          // Allocate a new console for the application
@@ -933,6 +952,22 @@ void GameEngine::AllocateConsole()
 
         std::ios::sync_with_stdio(true);         // Sync C++ streams with the console
     }
+}
+
+void GameEngine::TickTimers()
+{
+	float deltaTime = static_cast<float>(GAME_ENGINE->GetFrameDelay()) / 1000;
+
+	for (size_t i{ 0 }; i < m_Timers.size(); ++i)
+	{
+		if (m_Timers[i] == nullptr) continue;
+
+		m_Timers[i]->Tick(deltaTime);
+		if (m_Timers[i]->MarkedForDeletion())
+		{
+			m_Timers[i] = nullptr;
+		}
+	}
 }
 
 int GameEngine::DrawString(const tstring& text, int left, int top, int right, int bottom) const
@@ -1012,6 +1047,11 @@ int GameEngine::DrawString(const tstring& text, int left, int top) const
 
 bool GameEngine::DrawBitmap(const Bitmap* bitmapPtr, int left, int top, RECT rect) const
 {
+	return DrawBitmap(bitmapPtr, left, top, rect, 1, 1);
+}
+
+bool GameEngine::DrawBitmap(const Bitmap *bitmapPtr, int left, int top, RECT sourceRect, float scaleX, float scaleY) const
+{
 	if (m_IsPainting)
 	{
 		if (!bitmapPtr->Exists()) return false;
@@ -1026,9 +1066,9 @@ bool GameEngine::DrawBitmap(const Bitmap* bitmapPtr, int left, int top, RECT rec
 		if (bitmapPtr->HasAlphaChannel())
 		{
 			BLENDFUNCTION blender = { AC_SRC_OVER, 0, (BYTE)(2.55 * opacity), AC_SRC_ALPHA }; // blend function combines opacity and pixel based transparency
-			AlphaBlend(m_HdcDraw, left, top, rect.right - rect.left, rect.bottom - rect.top, hdcMem, rect.left, rect.top, rect.right - rect.left, rect.bottom - rect.top, blender);
+			AlphaBlend(m_HdcDraw, left, top, (sourceRect.right - sourceRect.left) * scaleX, (sourceRect.bottom - sourceRect.top) * scaleY, hdcMem, sourceRect.left, sourceRect.top, sourceRect.right - sourceRect.left, sourceRect.bottom - sourceRect.top, blender);
 		}
-		else TransparentBlt(m_HdcDraw, left, top, rect.right - rect.left, rect.bottom - rect.top, hdcMem, rect.left, rect.top, rect.right - rect.left, rect.bottom - rect.top, bitmapPtr->GetTransparencyColor());
+		else TransparentBlt(m_HdcDraw, left, top, (sourceRect.right - sourceRect.left) * scaleX, (sourceRect.bottom - sourceRect.top) * scaleY, hdcMem, sourceRect.left, sourceRect.top, sourceRect.right - sourceRect.left, sourceRect.bottom - sourceRect.top, bitmapPtr->GetTransparencyColor());
 
 		SelectObject(hdcMem, hbmOld);
 		DeleteDC(hdcMem);
@@ -1040,6 +1080,11 @@ bool GameEngine::DrawBitmap(const Bitmap* bitmapPtr, int left, int top, RECT rec
 
 bool GameEngine::DrawBitmap(const Bitmap* bitmapPtr, int left, int top) const
 {
+	return DrawBitmap(bitmapPtr, left, top, 1, 1);
+}
+
+bool GameEngine::DrawBitmap(const Bitmap *bitmapPtr, int left, int top, float scaleX, float scaleY) const
+{
 	if (m_IsPainting)
 	{
 		if (!bitmapPtr->Exists()) return false;
@@ -1048,7 +1093,7 @@ bool GameEngine::DrawBitmap(const Bitmap* bitmapPtr, int left, int top) const
 		GetObject(bitmapPtr->GetHandle(), sizeof(bm), &bm);
 		RECT rect { 0, 0, bm.bmWidth, bm.bmHeight };
 
-		return DrawBitmap(bitmapPtr, left, top, rect);
+		return DrawBitmap(bitmapPtr, left, top, rect, scaleX, scaleY);
 	}
 	else return false;
 }
@@ -2292,80 +2337,6 @@ LRESULT Button::ButtonProc(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam)
 		}
 	}
 	return CallWindowProc(m_ProcOldButton, hWnd, msg, wParam, lParam);
-}
-
-//-----------------------------------------------------------------
-// Timer Member Functions
-//-----------------------------------------------------------------
-
-Timer::Timer(int msec, Callable* targetPtr, bool repeat) : m_Delay{ msec }, m_MustRepeat{repeat}
-{
-	AddActionListener(targetPtr);
-}
-
-Timer::~Timer()
-{
-	if (m_IsRunning) Stop(); // stop closes the handle
-}
-
-void Timer::Start()
-{
-	if (m_IsRunning == false)
-	{
-		CreateTimerQueueTimer(&m_TimerHandle, NULL, TimerProcStatic, (void*) this, m_Delay, m_Delay, WT_EXECUTEINTIMERTHREAD);
-		m_IsRunning = true;
-	}
-}
-
-void Timer::Stop()
-{
-	if (m_IsRunning == true)
-	{
-		DeleteTimerQueueTimer(NULL, m_TimerHandle, NULL);
-		//CloseHandle (m_TimerHandle);		DeleteTimerQueueTimer automatically closes the handle? MSDN Documentation seems to suggest this
-
-		m_IsRunning = false;
-	}
-}
-
-bool Timer::IsRunning() const
-{
-	return m_IsRunning;
-}
-
-void Timer::SetDelay(int msec)
-{
-	m_Delay = max(msec, 1); // timer will not accept values less than 1 msec
-
-	if (m_IsRunning)
-	{
-		Stop();
-		Start();
-	}
-}
-
-void Timer::SetRepeat(bool repeat)
-{
-	m_MustRepeat = repeat;
-}
-
-int Timer::GetDelay() const
-{
-	return m_Delay;
-}
-
-Caller::Type Timer::GetType() const
-{
-	return Caller::Type::Timer;
-}
-
-void CALLBACK Timer::TimerProcStatic(void* lpParameter, BOOLEAN TimerOrWaitFired)
-{
-	Timer* timerPtr = reinterpret_cast<Timer*>(lpParameter);
-
-	if (timerPtr->m_IsRunning)		timerPtr->CallListeners();
-
-	if (!timerPtr->m_MustRepeat)	timerPtr->Stop();
 }
 
 //---------------------------

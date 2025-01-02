@@ -28,6 +28,7 @@
 
 #include "AbstractGame.h"				// base for all games
 #include "GameDefines.h"				// common header files and defines / macros
+#include "Timer.h"
 
 #include <vector>						// using std::vector for tab control logic
 #include <queue>						// using std::queue for event system
@@ -123,7 +124,9 @@ public:
 	int			DrawString			(const tstring& text, int left, int top, int right, int bottom)			const;
 
 	bool		DrawBitmap			(const Bitmap* bitmapPtr, int left, int top)							const;
+	bool		DrawBitmap			(const Bitmap* bitmapPtr, int left, int top, float scaleX, float scaleY)							const;
 	bool		DrawBitmap			(const Bitmap* bitmapPtr, int left, int top, RECT sourceRect)			const;
+	bool		DrawBitmap			(const Bitmap* bitmapPtr, int left, int top, RECT sourceRect, float scaleX, float scaleY)			const;
 
 	bool		DrawPolygon			(const POINT ptsArr[], int count)										const;
 	bool		DrawPolygon			(const POINT ptsArr[], int count, bool close)							const;
@@ -147,6 +150,8 @@ public:
 	void		TabNext				(HWND ChildWindow)		const;
 	void		TabPrevious			(HWND ChildWindow)		const;
 
+	void RegisterTimer(std::unique_ptr<ITimer> pTimer);
+
 private:
 	// Private Member Functions
 	LRESULT     HandleEvent			(HWND hWindow, UINT msg, WPARAM wParam, LPARAM lParam);
@@ -162,6 +167,8 @@ private:
 
 	// Credit to Ádám Knapecz; makes standard cout & lua prints function within console window
 	void 		AllocateConsole		();
+
+	void TickTimers();
 
 	// Member Variables
 	HINSTANCE           m_Instance			{};
@@ -192,6 +199,8 @@ private:
 
 	// Window Region assistance variable
 	HitRegion*			m_WindowRegionPtr	{};
+
+	std::vector<std::unique_ptr<ITimer>> m_Timers{ 5 };
 };
 
 //------------------------------------------------------------------------------------------------
@@ -256,55 +265,6 @@ protected:
 private:
 	bool		AddListenerObject		(Callable* targetPtr);
 	bool		RemoveListenerObject	(const Callable* targetPtr);
-};
-
-//--------------------------------------------------------------------------
-// Timer Class
-//--------------------------------------------------------------------------
-
-class Timer : public Caller
-{
-public:
-	// -------------------------
-	// Constructor(s) and Destructor
-	// -------------------------
-	Timer(int msec, Callable* targetPtr, bool repeat = false);
-
-	virtual ~Timer() override;
-
-	// -------------------------
-	// Disabling copy/move constructors and assignment operators
-	// -------------------------
-	Timer(const Timer& other)					= delete;
-	Timer(Timer&& other) noexcept				= delete;
-	Timer& operator=(const Timer& other)		= delete;
-	Timer& operator=(Timer&& other) noexcept	= delete;
-
-	// -------------------------
-	// General Member Functions
-	// -------------------------
-	void	Start			();
-	void	Stop			();
-	void	SetDelay		(int msec);
-	void	SetRepeat		(bool repeat);
-
-	bool	IsRunning		()					const;
-	int		GetDelay		()					const;
-	Type	GetType			()					const;
-
-private:
-	// -------------------------
-	// Datamembers
-	// -------------------------
-	HANDLE	m_TimerHandle	{};
-	bool	m_IsRunning		{};
-	bool	m_MustRepeat;
-	int		m_Delay;
-
-	// -------------------------
-	// Handler functions
-	// -------------------------
-	static void CALLBACK TimerProcStatic(void* lpParameter, BOOLEAN TimerOrWaitFired); // proc will call CallListeners()
 };
 
 //-----------------------------------------------------------------

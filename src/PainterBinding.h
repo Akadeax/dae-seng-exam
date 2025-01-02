@@ -25,7 +25,9 @@ public:
 	static void DrawStringSized(const tstring& text, Vector2l topLeft, Vector2l bottomRight);
 
 	static void DrawBitmap(const Bitmap* bitmapPtr, Vector2l topLeft);
+	static void DrawBitmapScaled(const Bitmap* bitmapPtr, Vector2l topLeft, Vector2l scale);
 	static void DrawBitmapSourced(const Bitmap* bitmapPtr, Vector2l topLeft, Vector2l sourceTopLeft, Vector2l sourceBottomRight);
+	static void DrawBitmapSourcedScaled(const Bitmap* bitmapPtr, Vector2l topLeft, Vector2l sourceTopLeft, Vector2l sourceBottomRight, Vector2l scale);
 
 	static void DrawPolygon(std::vector<Vector2l> points, bool close);
 	static void FillPolygon(std::vector<Vector2l> points, bool close);
@@ -33,4 +35,6 @@ public:
 
 	static std::unique_ptr<Bitmap> CreateBitmap(const tstring& filename, bool createAlphaChannel);
 	static std::unique_ptr<Font> CreateFontRef(const tstring& fontName, bool bold, bool italic, bool underline, int size);
+
+	static Vector2l GetBitmapSize(const Bitmap* bitmap);
 };

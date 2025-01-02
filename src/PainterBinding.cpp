@@ -75,6 +75,11 @@ void PainterBinding::DrawBitmap(const Bitmap *bitmapPtr, Vector2l topLeft)
 	GAME_ENGINE->DrawBitmap(bitmapPtr, topLeft.x, topLeft.y);
 }
 
+void PainterBinding::DrawBitmapScaled(const Bitmap *bitmapPtr, Vector2l topLeft, Vector2l scale)
+{
+	GAME_ENGINE->DrawBitmap(bitmapPtr, topLeft.x, topLeft.y, scale.x, scale.y);
+}
+
 void PainterBinding::DrawBitmapSourced(const Bitmap *bitmapPtr, Vector2l topLeft, Vector2l sourceTopLeft, Vector2l sourceBottomRight)
 {
 	RECT src;
@@ -84,6 +89,17 @@ void PainterBinding::DrawBitmapSourced(const Bitmap *bitmapPtr, Vector2l topLeft
 	src.right = sourceBottomRight.x;
 
 	GAME_ENGINE->DrawBitmap(bitmapPtr, topLeft.x, topLeft.y, src);
+}
+
+void PainterBinding::DrawBitmapSourcedScaled(const Bitmap *bitmapPtr, Vector2l topLeft, Vector2l sourceTopLeft, Vector2l sourceBottomRight, Vector2l scale)
+{
+	RECT src;
+	src.left = sourceTopLeft.x;
+	src.top = sourceTopLeft.y;
+	src.bottom = sourceBottomRight.y;
+	src.right = sourceBottomRight.x;
+
+	GAME_ENGINE->DrawBitmap(bitmapPtr, topLeft.x, topLeft.y, src, scale.x, scale.y);
 }
 
 void PainterBinding::DrawPolygon(std::vector<Vector2l> points, bool close)
@@ -129,4 +145,9 @@ std::unique_ptr<Bitmap> PainterBinding::CreateBitmap(const tstring& filename, bo
 std::unique_ptr<Font> PainterBinding::CreateFontRef(const tstring &fontName, bool bold, bool italic, bool underline, int size)
 {
 	return std::make_unique<Font>(fontName, bold, italic, underline, size);
+}
+
+Vector2l PainterBinding::GetBitmapSize(const Bitmap *bitmap)
+{
+	return Vector2l{ bitmap->GetWidth(), bitmap->GetHeight() };
 }

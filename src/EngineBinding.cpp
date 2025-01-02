@@ -20,3 +20,8 @@ void EngineBinding::GoWindowed()
 {
 	GAME_ENGINE->GoWindowedMode();
 }
+
+void EngineBinding::MakeTimer(float seconds, sol::function function, bool repeats)
+{
+	GAME_ENGINE->RegisterTimer(std::make_unique<Timer<sol::function>>(seconds, function, repeats));
+}

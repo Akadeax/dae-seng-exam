@@ -13,6 +13,7 @@
 #include "GameEngine.h"
 #include "AbstractGame.h"
 #include "sol/sol.hpp"
+#include "Timer.h"
 
 //-----------------------------------------------------------------
 // Game Class

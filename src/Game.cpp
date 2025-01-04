@@ -7,7 +7,10 @@
 // Include Files
 //-----------------------------------------------------------------
 #include "Game.h"
+
+#include <iostream>
 #include "SetupContext.h"
+#include "GameDefines.h"
 #include "Vectors.h"
 #include "Color.h"
 
@@ -19,6 +22,7 @@
 //-----------------------------------------------------------------
 
 Game::Game()
+	: state{ sol::c_call<decltype(&Game::Panic), &Game::Panic> }
 {
 	// nothing to create
 }
@@ -33,7 +37,7 @@ void Game::Initialize()
 	SetupBindings();
 	AbstractGame::Initialize();
 
-	std::string scriptName{ "lua/script.lua" };
+	std::string scriptName{ "lua/game.lua" };
 	state.script_file(scriptName);
 
 	SetupContext setupContext{ TEXT("Default Name"), Vector2l{ 600, 600 }, TEXT("WASD") };
@@ -226,14 +230,16 @@ void Game::SetupBindings()
 		sol::constructors<Vector2l(), Vector2l(Vector2l_t, Vector2l_t)>{},
 		"x", &Vector2<Vector2l_t>::x,
 		"y", &Vector2<Vector2l_t>::y,
-		"print", &Vector2<Vector2l_t>::Print
+		"print", &Vector2<Vector2l_t>::Print,
+		"distance2", &Vector2<Vector2l_t>::Distance2
 	);
 	state.new_usertype<Vector2f>(
 		"Vector2f",
 		sol::constructors<Vector2f(), Vector2l(Vector2f_t, Vector2f_t)>{},
 		"x", &Vector2<Vector2f_t>::x,
 		"y", &Vector2<Vector2f_t>::y,
-		"print", &Vector2<Vector2f_t>::Print
+		"print", &Vector2<Vector2f_t>::Print,
+		"distance2", &Vector2<Vector2f_t>::Distance2
 	);
 
 	sol::table colorsTable{ state.create_named_table("Colors") };
@@ -298,4 +304,11 @@ void Game::SetupBindings()
 		"g", &Color::g,
 		"b", &Color::b
 	);
+}
+
+void Game::Panic(sol::optional<tstring> maybe_msg)
+{
+	if (!maybe_msg.has_value()) return;
+
+	tcout << "Lua error: " << maybe_msg.value() << '\n';
 }

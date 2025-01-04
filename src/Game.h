@@ -9,6 +9,8 @@
 // Include Files
 //-----------------------------------------------------------------
 
+#include <optional>
+
 #include "Resource.h"
 #include "GameEngine.h"
 #include "AbstractGame.h"
@@ -54,6 +56,8 @@ public:
 
 private:
 	void SetupBindings();
+
+	static void Panic(sol::optional<tstring> maybe_msg);
 
 	// -------------------------
 	// Datamembers

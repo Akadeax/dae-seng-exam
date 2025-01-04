@@ -267,7 +267,12 @@ do -- Engine bindings
 	function Vector2l.new() end
 
 	--- Prints the vector to console.
-	function Vector2l.print() end
+	function Vector2l:print() end
+
+	--- Calculate the distance to another vector.
+	--- @param other Vector2l The vector to calculate the distance to.
+	--- @return number distance The distance to other.
+	function Vector2l:distance2(other) end
 
 	--- Static object for invoking engine functions.
 	--- @class Engine

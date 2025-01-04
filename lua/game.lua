@@ -18,7 +18,7 @@ player = Player{
     max_x = screen_size.x - bitmaps.player:get_size().x * pixel_scale,
 }
 
-player_projectiles = {}
+projectiles = {}
 
 --- Configures the application.
 --- @param context SetupContext
@@ -34,12 +34,12 @@ end
 --- Handles logic updates.
 --- @param delta_time number The time elapsed since the last frame, in seconds.
 function update(delta_time)
-    for i,proj in pairs(player_projectiles) do
+    for i,proj in pairs(projectiles) do
         if proj ~= nil then
             proj:update_movement()
             -- remove off-screen projectiles
-            if proj.position.y < 0 then
-                player_projectiles[i] = nil
+            if proj.position.y < 0 or proj.position.y > screen_size.y then
+                projectiles[i] = nil
             end
         end
     end
@@ -54,9 +54,8 @@ function draw()
     local player_projectile_top_left = Vector2l.new(6, 0)
     local player_projectile_bottom_right = Vector2l.new(9, 8)
 
-    for i,proj in pairs(player_projectiles) do
+    for i,proj in pairs(projectiles) do
         if proj ~= nil then
-            -- proj.position:print()
             Painter.draw_bitmap_sourced_scaled(
                 bitmaps.projectiles, proj.position,
                 player_projectile_top_left, player_projectile_bottom_right,
@@ -87,11 +86,12 @@ function key_pressed(key)
 
     if key == Keys.SPACE then
         local pos = Vector2l.new(player.position.x, player.position.y)
-        pos.x = pos.x + (bitmaps.player:get_size().x * pixel_scale // 2)
+        pos.x = pos.x + (bitmaps.player:get_size().x * pixel_scale // 2) - pixel_scale
 
-        Util.array_nil_insert(player_projectiles, Projectile{
+        Util.array_nil_insert(projectiles, Projectile{
             position = pos,
             direction = Dir.UP,
+            type = Type.PLAYER,
         })
     end
 end

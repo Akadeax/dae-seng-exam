@@ -24,7 +24,13 @@ struct Vector2
 
     void Print()
     {
-        std::cout << "(" << x << ", " << y << ")\n";
+        tcout << "(" << x << ", " << y << ")\n";
+    }
+
+    double Distance2(Vector2<T> other)
+    {
+        Vector2<T> sub{ std::abs(x - other.x), std::abs(y - other.y) };
+        return sub.x * sub.x + sub.y * sub.y;
     }
 };
 

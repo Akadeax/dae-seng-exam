@@ -157,7 +157,7 @@ do -- Drawing-related bindings
 	--- @return FontRef font The constructed font reference.
 	function FontRef.new(fontName, bold, italic, underline, size) end
 
-	--- Provides access to commonly used color constants
+	--- Provides access to commonly used color constants.
 	--- @class Colors
 	--- @field BLACK Color
 	--- @field WHITE Color
@@ -200,6 +200,17 @@ do -- Drawing-related bindings
 	--- @field SKY_BLUE Color
 	--- @field PEACH Color
 	Colors = {}
+
+	-- Provides access to non-single-letter keyboard keys.
+	--- @class Keys
+	--- @field ESCAPE string
+	--- @field RETURN string
+	--- @field SPACE string
+	--- @field DELETE string
+	--- @field SHIFT string
+	--- @field BACK string
+	--- @field TAB string
+	Keys = {}
 
 end
 
@@ -267,7 +278,7 @@ do -- Engine bindings
 	function Engine.is_key_pressed(key) end
 
 	--- Quit the Game.
-	function Engine.Quit() end
+	function Engine.quit() end
 
 	--- Go into Fullscreen mode.
 	function Engine.go_fullscreen() end

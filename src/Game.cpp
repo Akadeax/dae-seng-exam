@@ -34,8 +34,7 @@ void Game::Initialize()
 	AbstractGame::Initialize();
 
 	std::string scriptName{ "lua/script.lua" };
-
-	state.safe_script_file(scriptName);
+	state.script_file(scriptName);
 
 	SetupContext setupContext{ TEXT("Default Name"), Vector2l{ 600, 600 }, TEXT("WASD") };
 
@@ -160,7 +159,7 @@ void Game::CallAction(Caller* callerPtr)
 
 void Game::SetupBindings()
 {
-	state.open_libraries(sol::lib::base, sol::lib::math, sol::lib::string, sol::lib::debug);
+	state.open_libraries(sol::lib::base, sol::lib::math, sol::lib::string, sol::lib::debug, sol::lib::package);
 
 	state["delta_time"] = static_cast<float>(GAME_ENGINE->GetFrameDelay()) / 1000;
 
@@ -238,46 +237,59 @@ void Game::SetupBindings()
 	);
 
 	sol::table colorsTable{ state.create_named_table("Colors") };
-	colorsTable["BLACK"] = Color(0, 0, 0);
-	colorsTable["WHITE"] = Color(255, 255, 255);
-	colorsTable["RED"] = Color(255, 0, 0);
-	colorsTable["GREEN"] = Color(0, 255, 0);
-	colorsTable["BLUE"] = Color(0, 0, 255);
-	colorsTable["YELLOW"] = Color(255, 255, 0);
-	colorsTable["CYAN"] = Color(0, 255, 255);
-	colorsTable["MAGENTA"] = Color(255, 0, 255);
-	colorsTable["GRAY"] = Color(128, 128, 128);
-	colorsTable["LIGHT_GRAY"] = Color(211, 211, 211);
-	colorsTable["DARK_GRAY"] = Color(64, 64, 64);
-	colorsTable["ORANGE"] = Color(255, 165, 0);
-	colorsTable["PINK"] = Color(255, 192, 203);
-	colorsTable["PURPLE"] = Color(128, 0, 128);
-	colorsTable["BROWN"] = Color(139, 69, 19);
-	colorsTable["LIME"] = Color(50, 205, 50);
-	colorsTable["OLIVE"] = Color(128, 128, 0);
-	colorsTable["MAROON"] = Color(128, 0, 0);
-	colorsTable["NAVY"] = Color(0, 0, 128);
-	colorsTable["TEAL"] = Color(0, 128, 128);
-	colorsTable["GOLD"] = Color(255, 215, 0);
-	colorsTable["SILVER"] = Color(192, 192, 192);
-	colorsTable["BEIGE"] = Color(245, 245, 220);
-	colorsTable["TURQUOISE"] = Color(64, 224, 208);
-	colorsTable["INDIGO"] = Color(75, 0, 130);
-	colorsTable["VIOLET"] = Color(238, 130, 238);
-	colorsTable["SALMON"] = Color(250, 128, 114);
-	colorsTable["CORAL"] = Color(255, 127, 80);
-	colorsTable["CHOCOLATE"] = Color(210, 105, 30);
-	colorsTable["KHAKI"] = Color(240, 230, 140);
-	colorsTable["PLUM"] = Color(221, 160, 221);
-	colorsTable["TAN"] = Color(210, 180, 140);
-	colorsTable["AQUA"] = Color(0, 255, 255);
-	colorsTable["FUCHSIA"] = Color(255, 0, 255);
-	colorsTable["SEA_GREEN"] = Color(46, 139, 87);
-	colorsTable["LAVENDER"] = Color(230, 230, 250);
-	colorsTable["CRIMSON"] = Color(220, 20, 60);
-	colorsTable["MINT"] = Color(189, 252, 201);
-	colorsTable["SKY_BLUE"] = Color(135, 206, 235);
-	colorsTable["PEACH"] = Color(255, 218, 185);
+	{ // scope so it's collapsable
+		colorsTable["BLACK"] = Color(0, 0, 0);
+		colorsTable["WHITE"] = Color(255, 255, 255);
+		colorsTable["RED"] = Color(255, 0, 0);
+		colorsTable["GREEN"] = Color(0, 255, 0);
+		colorsTable["BLUE"] = Color(0, 0, 255);
+		colorsTable["YELLOW"] = Color(255, 255, 0);
+		colorsTable["CYAN"] = Color(0, 255, 255);
+		colorsTable["MAGENTA"] = Color(255, 0, 255);
+		colorsTable["GRAY"] = Color(128, 128, 128);
+		colorsTable["LIGHT_GRAY"] = Color(211, 211, 211);
+		colorsTable["DARK_GRAY"] = Color(64, 64, 64);
+		colorsTable["ORANGE"] = Color(255, 165, 0);
+		colorsTable["PINK"] = Color(255, 192, 203);
+		colorsTable["PURPLE"] = Color(128, 0, 128);
+		colorsTable["BROWN"] = Color(139, 69, 19);
+		colorsTable["LIME"] = Color(50, 205, 50);
+		colorsTable["OLIVE"] = Color(128, 128, 0);
+		colorsTable["MAROON"] = Color(128, 0, 0);
+		colorsTable["NAVY"] = Color(0, 0, 128);
+		colorsTable["TEAL"] = Color(0, 128, 128);
+		colorsTable["GOLD"] = Color(255, 215, 0);
+		colorsTable["SILVER"] = Color(192, 192, 192);
+		colorsTable["BEIGE"] = Color(245, 245, 220);
+		colorsTable["TURQUOISE"] = Color(64, 224, 208);
+		colorsTable["INDIGO"] = Color(75, 0, 130);
+		colorsTable["VIOLET"] = Color(238, 130, 238);
+		colorsTable["SALMON"] = Color(250, 128, 114);
+		colorsTable["CORAL"] = Color(255, 127, 80);
+		colorsTable["CHOCOLATE"] = Color(210, 105, 30);
+		colorsTable["KHAKI"] = Color(240, 230, 140);
+		colorsTable["PLUM"] = Color(221, 160, 221);
+		colorsTable["TAN"] = Color(210, 180, 140);
+		colorsTable["AQUA"] = Color(0, 255, 255);
+		colorsTable["FUCHSIA"] = Color(255, 0, 255);
+		colorsTable["SEA_GREEN"] = Color(46, 139, 87);
+		colorsTable["LAVENDER"] = Color(230, 230, 250);
+		colorsTable["CRIMSON"] = Color(220, 20, 60);
+		colorsTable["MINT"] = Color(189, 252, 201);
+		colorsTable["SKY_BLUE"] = Color(135, 206, 235);
+		colorsTable["PEACH"] = Color(255, 218, 185);
+	}
+
+	sol::table keysTable{ state.create_named_table("Keys") };
+	{
+		keysTable["ESCAPE"] = tstring{ static_cast<char>(VK_ESCAPE) };
+		keysTable["RETURN"] = tstring{ static_cast<char>(VK_RETURN) };
+		keysTable["SPACE"] = tstring{ static_cast<char>(VK_SPACE) };
+		keysTable["DELETE"] = tstring{ static_cast<char>(VK_DELETE) };
+		keysTable["SHIFT"] = tstring{ static_cast<char>(VK_SHIFT) };
+		keysTable["BACK"] = tstring{ static_cast<char>(VK_BACK) };
+		keysTable["TAB"] = tstring{ static_cast<char>(VK_TAB) };
+	}
 
 	state.new_usertype<Color>(
 		"Color",

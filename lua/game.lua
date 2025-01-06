@@ -45,8 +45,6 @@ function update(delta_time)
             if proj.position.y < 0 or proj.position.y > screen_size.y then
                 projectiles[i] = nil
             end
-
-            -- print(proj.position:distance2(player.position))
         end
     end
 
@@ -54,15 +52,17 @@ function update(delta_time)
         if enemy ~= nil then
             enemy:update_movement()
 
-
+            if enemy:check_collisions(projectiles) then
+                enemies[i] = nil
+            end
         end
     end
 end
 
 
 function spawn_initial_enemies()
-    Engine.make_timer(1.5, function()
-        Util.array_nil_insert(enemies, Enemy())
+    Engine.make_timer(1.0, function()
+        Util.array_nil_insert(enemies, Enemy{ position = Vector2l.new() })
     end, true)
 end
 
@@ -89,7 +89,13 @@ function draw()
 
     for i,enemy in pairs(enemies) do
         if enemy ~= nil then
-            Painter.draw_bitmap_sourced_scaled(bitmaps.enemy, enemy.position, enemy_top_left, enemy_bottom_right, Vector2l.new(pixel_scale, pixel_scale))
+            Painter.draw_bitmap_sourced_scaled(
+                bitmaps.enemy,
+                enemy.position,
+                enemy_top_left,
+                enemy_bottom_right,
+                Vector2l.new(pixel_scale, pixel_scale)
+            )
         end
     end
 end

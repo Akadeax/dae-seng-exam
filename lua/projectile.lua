@@ -13,7 +13,7 @@ Type = { PLAYER = {}, ENEMY = {} }
 Projectile = Class{
 	position = Vector2l.new(),
 	direction = ProjectileDir.UP,
-	velocity = 800,
+	velocity = 900,
 	type = Type.PLAYER
 }
 

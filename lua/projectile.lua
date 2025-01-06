@@ -3,7 +3,7 @@ require("class")
 --- @enum
 ProjectileDir = { UP = {}, DOWN = {} }
 --- @enum
-Type = { PLAYER = {}, ENEMY = {} }
+ProjectileType = { PLAYER = {}, ENEMY = {} }
 
 --- @class Projectile
 --- @field position Vector2l
@@ -14,7 +14,7 @@ Projectile = Class{
 	position = Vector2l.new(),
 	direction = ProjectileDir.UP,
 	velocity = 900,
-	type = Type.PLAYER
+	type = ProjectileType.PLAYER
 }
 
 function Projectile:update_movement()

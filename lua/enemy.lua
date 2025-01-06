@@ -74,11 +74,12 @@ function Enemy:check_collisions(projectiles)
 
 	local THRESHOLD = 500
 	for i,proj in pairs(projectiles) do
-		local dist = proj.position:distance2(local_pos)
-		print(dist)
-		if dist < THRESHOLD then
-			projectiles[i] = nil
-			return true
+		if proj.type == ProjectileType.PLAYER then
+			local dist = proj.position:distance2(local_pos)
+			if dist < THRESHOLD then
+				projectiles[i] = nil
+				return true
+			end
 		end
 	end
 

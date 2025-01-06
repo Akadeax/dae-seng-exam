@@ -269,9 +269,9 @@ do -- Engine bindings
 	--- Prints the vector to console.
 	function Vector2l:print() end
 
-	--- Calculate the distance to another vector.
+	--- Calculate the squared distance to another vector.
 	--- @param other Vector2l The vector to calculate the distance to.
-	--- @return number distance The distance to other.
+	--- @return number distance The squared distance to other.
 	function Vector2l:distance2(other) end
 
 	--- Static object for invoking engine functions.
@@ -292,9 +292,9 @@ do -- Engine bindings
 	function Engine.go_windowed() end
 
 	--- Make a timer that calls a callback after the given seconds.
-	--- @param seconds number
-	---@param func function
-	---@param repeats boolean
+	--- @param seconds number The amount of seconds to wait until calling.
+	---@param func function The function to call.
+	---@param repeats boolean If true and the timer runs out, restart it.
 	function Engine.make_timer(seconds, func, repeats) end
 
 end

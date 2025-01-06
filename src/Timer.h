@@ -2,6 +2,10 @@
 #include <concepts>
 #include "sol/sol.hpp"
 
+// This timer class exists as a flexible way to invoke a Callable after a certain time.
+// The way this is set up allows for multiple different types of callable to be treated the same
+// as each other; a Timer<sol::function> and Timer<std::function> can coexist.
+// To keep these types in the same list, ITimer serves as an interface for the purpose of referring to any Timer by pointer.
 class ITimer
 {
 public:

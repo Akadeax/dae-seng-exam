@@ -1,6 +1,6 @@
 #pragma once
 
-#include <string>		
+#include <string>
 #include <sstream>
 #include <iostream>
 #include <fstream>
@@ -10,6 +10,7 @@
 	#define tstring			std::wstring
 	#define tcin			std::wcin
 	#define tcout			std::wcout
+	#define terr			std::wcerr
 	#define tstringstream	std::wstringstream
 	#define tofstream		std::wofstream
 	#define tifstream		std::wifstream
@@ -20,6 +21,7 @@
 	#define tstring			std::string
 	#define tcin			std::cin
 	#define tcout			std::cout
+	#define terr			std::cerr
 	#define tstringstream	std::stringstream
 	#define tofstream		std::ofstream
 	#define tifstream		std::ifstream
@@ -82,4 +84,3 @@ struct NoAssert { \
 	NoAssert(bool isOK, const TCHAR* message=_T("")) {} \
 } myAsserter = NoAssert
 #endif
-

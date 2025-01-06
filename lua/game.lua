@@ -1,24 +1,26 @@
 local Player = require("player")
 local Projectile = require("projectile")
 local Util = require("util")
-
-text_font = FontRef.new("Cascadia Code", true, false, false, 62)
+local Enemy = require("enemy")
 
 bitmaps = {
     player = BitmapRef.new("resources/player.png", true),
     enemy = BitmapRef.new("resources/enemy.png", true),
     projectiles = BitmapRef.new("resources/bullets.png", true),
-}
+} --- @type BitmapRef[]
 
-screen_size = Vector2l.new(500, 500)
-pixel_scale = 4
+screen_size = Vector2l.new(500, 500) --- @type Vector2l
+pixel_scale = 4 --- @type integer
 
+--- @type Player
 player = Player{
     position = Vector2l.new(screen_size.x // 2, 400),
     max_x = screen_size.x - bitmaps.player:get_size().x * pixel_scale,
+    scale = pixel_scale,
 }
 
-projectiles = {}
+projectiles = {} --- @type Projectile[]
+enemies = {} --- @type Enemy[]
 
 --- Configures the application.
 --- @param context SetupContext
@@ -27,7 +29,9 @@ function setup(context)
     context:set_window_title("Space Invaders")
     context:set_listen_keys(Keys.SPACE .. Keys.ESCAPE)
 
-    Painter.set_font(text_font)
+    Painter.set_font(FontRef.new("Cascadia Code", true, false, false, 62))
+
+    spawn_initial_enemies()
 end
 
 
@@ -41,14 +45,30 @@ function update(delta_time)
             if proj.position.y < 0 or proj.position.y > screen_size.y then
                 projectiles[i] = nil
             end
+
+            -- print(proj.position:distance2(player.position))
+        end
+    end
+
+    for i,enemy in pairs(enemies) do
+        if enemy ~= nil then
+            enemy:update_movement()
+
+
         end
     end
 end
 
 
+function spawn_initial_enemies()
+    Engine.make_timer(1.5, function()
+        Util.array_nil_insert(enemies, Enemy())
+    end, true)
+end
+
 --- Handles drawing.
 function draw()
-    Painter.fill_window_rect(Colors.BLACK)
+    Painter.fill_window_rect(Colors.DARK_GRAY)
     Painter.draw_bitmap_scaled(bitmaps.player, player.position, Vector2l.new(pixel_scale, pixel_scale));
 
     local player_projectile_top_left = Vector2l.new(6, 0)
@@ -63,16 +83,25 @@ function draw()
             )
         end
     end
+
+    local enemy_top_left = Vector2l.new(0, 0)
+    local enemy_bottom_right = Vector2l.new(11, 8)
+
+    for i,enemy in pairs(enemies) do
+        if enemy ~= nil then
+            Painter.draw_bitmap_sourced_scaled(bitmaps.enemy, enemy.position, enemy_top_left, enemy_bottom_right, Vector2l.new(pixel_scale, pixel_scale))
+        end
+    end
 end
 
 --- Called every frame. Check whether continuous keys are pressed here.
 function check_keyboard()
     if Engine.is_key_pressed("A") and player.position.x > 0 then
-        player:move(-1 * math.tointeger(math.ceil(player.speed * delta_time)))
+        player:move(-1 * math.tointeger(math.floor(player.speed * delta_time + 0.5)))
     end
 
     if Engine.is_key_pressed("D") and player.position.x < player.max_x then
-        player:move(math.tointeger(math.ceil(player.speed * delta_time)))
+        player:move(math.tointeger(math.floor(player.speed * delta_time + 0.5)))
     end
 end
 
@@ -90,7 +119,7 @@ function key_pressed(key)
 
         Util.array_nil_insert(projectiles, Projectile{
             position = pos,
-            direction = Dir.UP,
+            direction = ProjectileDir.UP,
             type = Type.PLAYER,
         })
     end

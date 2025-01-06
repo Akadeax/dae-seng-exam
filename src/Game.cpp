@@ -24,7 +24,6 @@
 Game::Game()
 	: state{ sol::c_call<decltype(&Game::Panic), &Game::Panic> }
 {
-	// nothing to create
 }
 
 Game::~Game()
@@ -97,13 +96,23 @@ void Game::End()
 
 void Game::Paint(RECT rect) const
 {
-	luaDrawFunction();
+	sol::protected_function_result result{ luaDrawFunction.call() };
+	if (!result.valid())
+	{
+		sol::error err = result;
+		terr << _T("Paint error: ") << err.what() << '\n';
+	}
 }
 
 void Game::Tick()
 {
 	float deltaTime = static_cast<float>(GAME_ENGINE->GetFrameDelay()) / 1000;
-	luaUpdateFunction(deltaTime);
+	sol::protected_function_result result{ luaUpdateFunction.call(deltaTime) };
+	if (!result.valid())
+	{
+		sol::error err = result;
+		terr << _T("Update error: ") << err.what() << '\n';
+	}
 }
 
 void Game::MouseButtonAction(bool isLeft, bool isDown, int x, int y, WPARAM wParam)
@@ -146,19 +155,26 @@ void Game::MouseMove(int x, int y, WPARAM wParam)
 
 void Game::CheckKeyboard()
 {
-
-
-	luaCheckKeyboardFunction();
+	sol::protected_function_result result{ luaCheckKeyboardFunction.call() };
+	if (!result.valid())
+	{
+		sol::error err = result;
+		terr << _T("CheckKeyboard error: ") << err.what() << '\n';
+	}
 }
 
 void Game::KeyPressed(TCHAR key)
 {
-	luaKeyPressedFunction(tstring{ key });
+	sol::protected_function_result result{ luaKeyPressedFunction.call(tstring{ key }) };
+	if (!result.valid())
+	{
+		sol::error err = result;
+		terr << _T("KeyPressed error: ") << err.what() << '\n';
+	}
 }
 
 void Game::CallAction(Caller* callerPtr)
 {
-	// Insert the code that needs to execute when a Caller (= Button, TextBox, Timer, Audio) executes an action
 }
 
 void Game::SetupBindings()
@@ -254,7 +270,7 @@ void Game::SetupBindings()
 		colorsTable["MAGENTA"] = Color(255, 0, 255);
 		colorsTable["GRAY"] = Color(128, 128, 128);
 		colorsTable["LIGHT_GRAY"] = Color(211, 211, 211);
-		colorsTable["DARK_GRAY"] = Color(64, 64, 64);
+		colorsTable["DARK_GRAY"] = Color(32, 32, 32);
 		colorsTable["ORANGE"] = Color(255, 165, 0);
 		colorsTable["PINK"] = Color(255, 192, 203);
 		colorsTable["PURPLE"] = Color(128, 0, 128);

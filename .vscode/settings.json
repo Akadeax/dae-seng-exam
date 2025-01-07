@@ -83,5 +83,8 @@
 		"xutility": "cpp",
 		"filesystem": "cpp",
 		"*.tpp": "cpp"
-	}
+	},
+	"Lua.diagnostics.globals": [
+		"Util"
+	]
 }

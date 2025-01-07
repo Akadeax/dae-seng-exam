@@ -50,12 +50,17 @@ function update(delta_time)
 
     for i,enemy in pairs(enemies) do
         if enemy ~= nil then
-            enemy:update_movement()
+            enemy:update()
 
             if enemy:check_collisions(projectiles) then
                 enemies[i] = nil
             end
         end
+    end
+
+    player:update()
+    if player:check_collisions(projectiles) then
+        Engine.quit()
     end
 end
 
@@ -71,16 +76,40 @@ function draw()
     Painter.fill_window_rect(Colors.DARK_GRAY)
     Painter.draw_bitmap_scaled(bitmaps.player, player.position, Vector2l.new(pixel_scale, pixel_scale));
 
+	-- Draw player UI
+	local filled_amount = player._current_overheat / player.max_overheat
+	local total_fill_height = 100
+	local total_fill_width = 30
+	local fill_height = math.tointeger(math.floor(total_fill_height * filled_amount)) or 0
+
+	Painter.set_color(Colors.BLACK)
+	Painter.fill_rect(Vector2l.new(screen_size.x - total_fill_width, screen_size.y - total_fill_height), screen_size, 255)
+	Painter.set_color(Colors.RED)
+	Painter.fill_rect(Vector2l.new(screen_size.x - total_fill_width, screen_size.y - fill_height), screen_size, 255)
+
+
+	-- Draw projectiles
     local player_projectile_top_left = Vector2l.new(6, 0)
     local player_projectile_bottom_right = Vector2l.new(9, 8)
 
+    local enemy_projectile_top_left = Vector2l.new(0, 0)
+    local enemy_projectile_bottom_right = Vector2l.new(3, 8)
+
     for i,proj in pairs(projectiles) do
         if proj ~= nil then
-            Painter.draw_bitmap_sourced_scaled(
-                bitmaps.projectiles, proj.position,
-                player_projectile_top_left, player_projectile_bottom_right,
-                Vector2l.new(pixel_scale, pixel_scale)
-            )
+            if proj.type == ProjectileType.PLAYER then
+                Painter.draw_bitmap_sourced_scaled(
+                    bitmaps.projectiles, proj.position,
+                    player_projectile_top_left, player_projectile_bottom_right,
+                    Vector2l.new(pixel_scale, pixel_scale)
+                )
+            else
+                Painter.draw_bitmap_sourced_scaled(
+                    bitmaps.projectiles, proj.position,
+                    enemy_projectile_top_left, enemy_projectile_bottom_right,
+                    Vector2l.new(pixel_scale, pixel_scale)
+                )
+            end
         end
     end
 
@@ -120,13 +149,6 @@ function key_pressed(key)
     end
 
     if key == Keys.SPACE then
-        local pos = Vector2l.new(player.position.x, player.position.y)
-        pos.x = pos.x + (bitmaps.player:get_size().x * pixel_scale // 2) - pixel_scale
-
-        Util.array_nil_insert(projectiles, Projectile{
-            position = pos,
-            direction = ProjectileDir.UP,
-            type = Type.PLAYER,
-        })
+        player:try_shoot()
     end
 end
